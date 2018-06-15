@@ -47,21 +47,25 @@ while(True):
                 mimetype = 'text/css'
                 sendReply = True
 
-            print(sendReply)
+            # print(sendReply)
 
             if sendReply:
-                print('check')
+                # open file and read
                 file = open('build'+reqFile)
-                # file = open('build'+reqFile)
                 output = file.read()
                 file.close()
 
+                # send status
                 client.send("HTTP/1.1 200 OK\n")
+                # send header
                 client.send("Content-Type: "+mimetype+"\n")
                 client.send("\n")
+                # sned body
                 for i in range (0, len(output)):
                     client.send(output[i])
-
+                # close()
+                client.close()
+                address.close()
             else:
                 client.send("HTTP/1.1 404 Not Found")
                 # close()
