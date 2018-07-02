@@ -1,32 +1,11 @@
 import socket
-from streaming_form_data import StreamingFormDataParser
-from streaming_form_data.targets import ValueTarget, FileTarget
+import threading
 
-CLIHOST, CLIPORT = '', 8080
-WSERHOST, WSERPORT = 'localhost', 5000
-RSERHOST, RSERPORT = 'localhost', 4000
-BUFSIZE = 4096
-videofile = "video/Lemon.mp4"
-
-# socket()
-clis = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# bind()
-clis.bind((CLIHOST, CLIPORT))
-
-# listen()
-clis.listen(10)
-print("The Web Server is running..")
-print("PORT "+str(CLIPORT))
-
-while(True):
-    # accept()
-    client, address = clis.accept()
-    print(str(address)+" connected")
-
+def listenToClient(client, address):
+    BUFSIZE = 4096
     try:
         # send() + recv()
-        req = client.recv(4096).decode('utf-8')
+        req = client.recv(BUFSIZE).decode('utf-8')
         # parse req
 
         reqParse = req.split()
@@ -68,13 +47,21 @@ while(True):
                 # connect to server
                 serclient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 serclient.connect((RSERHOST, RSERPORT))
-                # fetch file and send it
+                # fetch file and write it
+                myfile = open('video/testfile.mp4', 'w')
                 while True:
                     data = serclient.recv(BUFSIZE)
                     if not data: break
-                    client.send(data)
-                print 'finished sending file'
+                    myfile.write(data)
+                myfile.close()
+                print 'finished writing file'
                 serclient.close()
+                # send the file
+                file = open('video/testfile.mp4')
+                output = file.read()
+                file.close()
+                for i in range(0, len(output)):
+                    client.send(output[i])
                 # close()
                 client.close()
                 address.close()
@@ -124,3 +111,27 @@ while(True):
         address.close()
     except:
         print("except")
+
+if __name__ == "__main__":
+    CLIHOST, CLIPORT = '', 8080
+    WSERHOST, WSERPORT = 'localhost', 5000
+    RSERHOST, RSERPORT = 'localhost', 4000
+    videofile = "video/Lemon.mp4"
+
+    # socket()
+    clis = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clis.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+    # bind()
+    clis.bind((CLIHOST, CLIPORT))
+
+    # listen()
+    clis.listen(10)
+    print("The Web Server is running..")
+    print("PORT "+str(CLIPORT))
+
+    while(True):
+        # accept()
+        client, address = clis.accept()
+        print(str(address)+" connected")
+        threading.Thread(target = listenToClient, args = (client, address)).start()

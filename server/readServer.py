@@ -13,7 +13,9 @@ print 'listening ...'
 while True:
     conn, addr = serv.accept()
     print 'client connected ... ', addr
-    bytes = open('video/testfile.mp4').read()
+    file = open('video/testfile.mp4')
+    bytes = file.read()
     conn.send(bytes)
     conn.close()
+    file.close()
     print 'client disconnected'
