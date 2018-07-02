@@ -1,38 +1,48 @@
 import React, { Component } from 'react'
+import FormData from 'form-data'
 
 class Capture extends Component {
   constructor(props) {
-    super(props);
+    super(props)
 
     this.state = {
-      constraints: { audio: false, video: { width: 400, height: 300 } }
-    };
+      constraints: { audio: true, video: { width: 400, height: 300 } }
+    }
 
-    this.handleStartClick = this.handleStartClick.bind(this);
-    this.takePicture = this.takePicture.bind(this);
-    this.clearPhoto = this.clearPhoto.bind(this);
+    // this.handleStartClick = this.handleStartClick.bind(this)
+    // this.takePicture = this.takePicture.bind(this)
+    // this.clearPhoto = this.clearPhoto.bind(this)
   }
-  componentDidMount() {
-    const constraints = this.state.constraints;
-    const getUserMedia = (params) => (
+  componentDidMount = async () => {
+    const constraints = this.state.constraints
+    const getUserMedia = params => (
       new Promise((successCallback, errorCallback) => {
-        navigator.webkitGetUserMedia.call(navigator, params, successCallback, errorCallback);
+        navigator.getUserMedia.call(navigator, params, successCallback, errorCallback)
       })
-    );
+    )
 
-    getUserMedia(constraints)
-    .then((stream) => {
-      const video = document.querySelector('video');
-      const vendorURL = window.URL || window.webkitURL;
+    // this.clearPhoto()
 
-      video.src = vendorURL.createObjectURL(stream);
-      video.play();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    try {
+      const stream = await getUserMedia(constraints)
+      const video = document.querySelector('video')
+      const vendorURL = window.URL || window.webkitURL
+      const blob = vendorURL.createObjectURL(stream)
 
-    this.clearPhoto();
+      var fd = new FormData()
+      fd.append('name', blob)
+      await fetch('/createVideo', {
+        method: 'POST',
+        body: fd,
+        headers: { Accept: "application/json" }
+      })
+      await fetch('/video/name')
+      video.src = blob
+      video.play()
+    }
+    catch(err) {
+      console.log(err)
+    }
   }
   clearPhoto () {
     const canvas = document.querySelector('canvas');
@@ -66,11 +76,7 @@ class Capture extends Component {
   render() {
     return (
       <div className="capture">
-        <Camera
-          handleStartClick={ this.handleStartClick }
-        />
-        <canvas id="canvas" hidden />
-        <Photo />
+        <Camera />
       </div>
     )
   }
@@ -78,10 +84,7 @@ class Capture extends Component {
 
 const Camera = (props) => (
   <div className="camera">
-    <video id="video"></video>
-    <a id="startButton"
-      onClick={ props.handleStartClick }
-    >Take photo</a>
+    <video id="video" />
   </div>
 );
 
