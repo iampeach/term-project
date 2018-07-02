@@ -30,7 +30,7 @@ while(True):
             req = client.recv(4096).decode('utf-8')
             # print(req)
             # parse req
-            if not req:
+            # if not req:
             #     print('send fail******************')
             #     req = client.recv(4096).decode('utf-8')
 
