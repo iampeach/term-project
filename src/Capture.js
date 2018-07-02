@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Player } from 'video-react'
 import FormData from 'form-data'
 
 class Capture extends Component {
@@ -6,7 +7,8 @@ class Capture extends Component {
     super(props)
 
     this.state = {
-      constraints: { audio: true, video: { width: 400, height: 300 } }
+      constraints: { audio: true, video: { width: 400, height: 300 } },
+      isInitialed: false
     }
 
     // this.handleStartClick = this.handleStartClick.bind(this)
@@ -14,31 +16,35 @@ class Capture extends Component {
     // this.clearPhoto = this.clearPhoto.bind(this)
   }
   componentDidMount = async () => {
-    const constraints = this.state.constraints
-    const getUserMedia = params => (
-      new Promise((successCallback, errorCallback) => {
-        navigator.getUserMedia.call(navigator, params, successCallback, errorCallback)
-      })
-    )
+    // const constraints = this.state.constraints
+    // navigator.getUserMedia = navigator.getUserMedia ||
+    //                          navigator.webkitGetUserMedia ||
+    //                          navigator.mozGetUserMedia;
+    // const getUserMedia = params => (
+    //   new Promise((successCallback, errorCallback) => {
+    //     navigator.getUserMedia.call(navigator, params, successCallback, errorCallback)
+    //   })
+    // )
 
     // this.clearPhoto()
 
     try {
-      const stream = await getUserMedia(constraints)
-      const video = document.querySelector('video')
-      const vendorURL = window.URL || window.webkitURL
-      const blob = vendorURL.createObjectURL(stream)
+    //   const stream = await getUserMedia(constraints)
+    //   const video = document.querySelector('video')
+    //   const vendorURL = window.URL || window.webkitURL
+    //   const blob = vendorURL.createObjectURL(stream)
 
-      var fd = new FormData()
-      fd.append('name', blob)
+    //   var fd = new FormData()
+    //   fd.append('name', blob)
       await fetch('/createVideo', {
         method: 'POST',
-        body: fd,
         headers: { Accept: "application/json" }
       })
-      await fetch('/video/name')
-      video.src = blob
-      video.play()
+      this.setState({ isInitialed: true })
+    //   var src = await fetch('/video/testfile.mp4')
+    //   console.log(src)
+    //   video.src = src
+    //   video.play()
     }
     catch(err) {
       console.log(err)
@@ -76,15 +82,16 @@ class Capture extends Component {
   render() {
     return (
       <div className="capture">
-        <Camera />
+        {(this.state.isInitialed) &&
+        <Camera />}
       </div>
     )
   }
 }
 
 const Camera = (props) => (
-  <div className="camera">
-    <video id="video" />
+  <div className="camera">  
+    <Player id="video" src="video/testfile.mp4"/>
   </div>
 );
 

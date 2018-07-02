@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Webcam from 'react-webcam';
+import "video-react/dist/video-react.css";
 import './App.css';
 import Capture from './Capture';
 
