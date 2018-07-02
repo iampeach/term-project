@@ -60,31 +60,21 @@ while(True):
                 sendReply = True
 
             if reqUrlParse[1] == 'video':
-                # open reqFile and read
-                serclient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                serclient.connect((RSERHOST, RSERPORT))
-                myfile = open('video/testfile.mp4', 'w')
-                while True:
-                    data = serclient.recv(BUFSIZE)
-                    if not data: break
-                    myfile.write(data)
-                myfile.close()
-                print 'finished writing file'
-                serclient.close()
-                print 'getVideo1', reqFile
-                file = open('.' + reqFile)
-                print 'getVideo'
-                output = file.read()
-                file.close()
-                print 'getVideo'
                 # send status
                 client.send("HTTP/1.1 200 OK\n")
                 # send header
                 client.send("Content-Type: video/mp4\n")
                 client.send("\n")
-                # send body
-                for i in range(0, len(output)):
-                    client.send(output[i])
+                # connect to server
+                serclient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                serclient.connect((RSERHOST, RSERPORT))
+                # fetch file and send it
+                while True:
+                    data = serclient.recv(BUFSIZE)
+                    if not data: break
+                    client.send(data)
+                print 'finished sending file'
+                serclient.close()
                 # close()
                 client.close()
                 address.close()
