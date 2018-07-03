@@ -114,8 +114,8 @@ def listenToClient(client, address):
 
 if __name__ == "__main__":
     CLIHOST, CLIPORT = '', 8080
-    WSERHOST, WSERPORT = 'localhost', 5000
-    RSERHOST, RSERPORT = 'localhost', 4000
+    WSERHOST, WSERPORT = '25.33.229.75', 5000
+    RSERHOST, RSERPORT = '25.33.229.75', 4000
     videofile = "video/Lemon.mp4"
 
     # socket()
